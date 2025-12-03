@@ -1,36 +1,38 @@
 pipeline {
-    agent any   // o un agente específico si tienes nodos
+    agent any
 
     stages {
         stage('Checkout') {
             steps {
-                // Usa el repo configurado en Jenkins (SCM)
                 checkout scm
             }
         }
 
         stage('Instalar dependencias') {
             steps {
-                // Windows: bat, Linux: sh
-                bat 'npm install'
+                dir('server') {
+                    bat 'npm install'
+                }
             }
         }
 
         stage('Pruebas API (Newman)') {
             steps {
-                bat 'npm run test:api'
+                dir('server') {
+                    bat 'npm run test:api'
+                }
             }
         }
     }
 
     post {
         always {
-            // Guarda el HTML como artefacto
-            archiveArtifacts artifacts: 'reportes/gestTeam-api.html', fingerprint: true
+            // Guardar artefacto HTML desde server/reportes
+            archiveArtifacts artifacts: 'server/reportes/gestTeam-api.html', fingerprint: true
 
-            // Si tienes el plugin HTML Publisher, esto muestra el reporte en Jenkins
+            // Publicar reporte HTML
             publishHTML(target: [
-                reportDir   : 'reportes',
+                reportDir   : 'server/reportes',
                 reportFiles : 'gestTeam-api.html',
                 reportName  : 'GestTeam – Pruebas Backend'
             ])
