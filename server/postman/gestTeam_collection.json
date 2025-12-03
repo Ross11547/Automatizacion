@@ -1,0 +1,396 @@
+{
+	"info": {
+		"_postman_id": "16b2be36-9c4f-4b67-9157-e2a01583f72d",
+		"name": "GestTeam Backend Tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "30515957"
+	},
+	"item": [
+		{
+			"name": "Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// 1) Código de estado correcto\r",
+							"pm.test(\"Status 200\", function () {\r",
+							"  pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// 2) Devuelve mensaje de éxito\r",
+							"pm.test(\"Mensaje de inicio de sesión correcto\", function () {\r",
+							"  const json = pm.response.json();\r",
+							"  pm.expect(json.mensaje).to.eql(\"Inicio de sesión correcto\");\r",
+							"});\r",
+							"\r",
+							"// 3) Devuelve un token (JWT)\r",
+							"pm.test(\"Devuelve token JWT\", function () {\r",
+							"  const json = pm.response.json();\r",
+							"  pm.expect(json).to.have.property(\"token\");\r",
+							"  pm.expect(json.token).to.be.a(\"string\");\r",
+							"  pm.expect(json.token.split('.').length).to.eql(3);\r",
+							"});\r",
+							"\r",
+							"// 4) Guardar token en el environment\r",
+							"const json = pm.response.json();\r",
+							"pm.environment.set(\"token\", json.token);\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"correo\": \"cbbe.rossanaangela.trujillo.sa@unifranz.edu.bo\",\r\n  \"password\": \"Z20Xd#efb0\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/auth/login",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Usuarios - Listar",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status 200\", function () {\r",
+							"  pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"const json = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Devuelve array de usuarios\", function () {\r",
+							"  pm.expect(json.data).to.be.an(\"array\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Hay al menos un usuario\", function () {\r",
+							"  pm.expect(json.data.length).to.be.greaterThan(0);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/usuario",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"usuario"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Usuario - Crear",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// Generar correo único para este test\r",
+							"const correo = `test.${Date.now()}@unifranz.edu.bo`;\r",
+							"pm.environment.set(\"usuario_correo_test\", correo);\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status 201 (creado)\", function () {\r",
+							"  pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"const json = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Mensaje de usuario agregado\", function () {\r",
+							"  pm.expect(json.mensaje).to.eql(\"Usuario agregado correctamente.\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Devuelve id y correo correctos\", function () {\r",
+							"  pm.expect(json.data).to.have.property(\"id\");\r",
+							"  pm.expect(json.data.correo).to.eql(pm.environment.get(\"usuario_correo_test\"));\r",
+							"});\r",
+							"\r",
+							"// Guardar id para los siguientes tests\r",
+							"pm.environment.set(\"usuario_id_test\", json.data.id);\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"nombre\": \"Test\",\r\n  \"apellido\": \"Automatizado\",\r\n  \"telefono\": \"70000000\",\r\n  \"ci\": 12345678,\r\n  \"correo\": \"{{usuario_correo_test}}\",\r\n  \"password\": \"123456\",\r\n  \"confirmaPassword\": \"123456\",\r\n  \"idRol\": 2,\r\n  \"activo\": true\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/usuario",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"usuario"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Usuario – Obtener",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status 200\", function () {\r",
+							"  pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"const json = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Usuario encontrado\", function () {\r",
+							"  pm.expect(json.data).to.have.property(\"id\");\r",
+							"  pm.expect(json.data.id).to.eql(Number(pm.environment.get(\"usuario_id_test\")));\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Correo coincide\", function () {\r",
+							"  pm.expect(json.data.correo).to.eql(pm.environment.get(\"usuario_correo_test\"));\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/usuario/{{usuario_id_test}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"usuario",
+						"{{usuario_id_test}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Usuario – Actualizar",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status 200\", function () {\r",
+							"  pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"const json = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Mensaje de actualización correcta\", function () {\r",
+							"  pm.expect(json.mensaje).to.eql(\"usuario actualizado correctamente\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Nombre y teléfono actualizados\", function () {\r",
+							"  pm.expect(json.data.nombre).to.eql(\"TestEditado\");\r",
+							"  pm.expect(json.data.telefono).to.eql(\"71111111\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"nombre\": \"TestEditado\",\r\n  \"telefono\": \"71111111\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/usuario/{{usuario_id_test}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"usuario",
+						"{{usuario_id_test}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Usuario - Eliminar",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status 200\", function () {\r",
+							"  pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"const json = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Mensaje de eliminación correcta\", function () {\r",
+							"  pm.expect(json.mensaje).to.eql(\"usuario eliminado correctamente\");\r",
+							"});\r",
+							"\r",
+							"// Extra: confirmar que ya no existe\r",
+							"pm.sendRequest(\r",
+							"  {\r",
+							"    url: `${pm.environment.get(\"base_url\")}/usuario/${pm.environment.get(\"usuario_id_test\")}`,\r",
+							"    method: \"GET\"\r",
+							"  },\r",
+							"  function (err, res) {\r",
+							"    pm.test(\"Usuario ya no existe (404)\", function () {\r",
+							"      pm.expect(res.code).to.eql(404);\r",
+							"    });\r",
+							"  }\r",
+							");\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/usuario/{{usuario_id_test}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"usuario",
+						"{{usuario_id_test}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Usuario - ObtenerID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status 200\", function () {\r",
+							"  pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"const json = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Devuelve un usuario\", function () {\r",
+							"  pm.expect(json).to.have.property(\"data\");\r",
+							"  pm.expect(json.data).to.be.an(\"object\");\r",
+							"  pm.expect(json.data).to.have.property(\"id\");\r",
+							"  pm.expect(json.data).to.have.property(\"correo\");\r",
+							"});\r",
+							"\r",
+							"// (Opcional) Solo verifica que el id sea numérico\r",
+							"pm.test(\"El id devuelto es numérico\", function () {\r",
+							"  pm.expect(json.data.id).to.be.a(\"number\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/usuario/18",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"usuario",
+						"18"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -1,0 +1,44 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "seed": "node prisma/seed.js",
+    "test": "npm run test:api",
+    "test:api": "newman run postman/gestTeam_collection.json -e postman/gestTeam_env.json --reporters cli,htmlextra --reporter-htmlextra-export reportes/gestTeam-api.html"
+  },
+  "prisma": {
+    "schema": "prisma/schema.prisma",
+    "seed": "node prisma/seed.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@octokit/rest": "^22.0.0",
+    "@prisma/client": "^6.16.3",
+    "axios": "^1.9.0",
+    "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.2",
+    "body-parser": "^1.20.3",
+    "cookie-session": "^2.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.1",
+    "node-fetch": "^3.3.2",
+    "passport": "^0.7.0",
+    "passport-github2": "^0.1.12",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "newman": "^6.2.1",
+    "newman-reporter-htmlextra": "^1.23.1",
+    "nodemon": "^3.1.9",
+    "prisma": "^6.16.3"
+  },
+  "type": "module"
+}
