@@ -6,7 +6,7 @@
     "dev": "nodemon index.js",
     "seed": "node prisma/seed.js",
     "test": "npm run test:api",
-    "test:api": "newman run postman/gestTeam_collection.json -e postman/gestTeam_env.json --reporters cli,htmlextra --reporter-htmlextra-export reportes/gestTeam-api.html"
+    "test:api": "newman run postman/gestTeam_collection.json -e postman/gestTeam_env.json --reporters cli,htmlextra --reporter-htmlextra-export reportes/gestTeam-api.html --reporter-htmlextra-browserTitle \"GestTeam API\" --reporter-htmlextra-title \"GestTeam – Login & CRUD Usuario\" --reporter-htmlextra-titleSize 3 --reporter-htmlextra-showEnvironmentData"
   },
   "prisma": {
     "schema": "prisma/schema.prisma",
